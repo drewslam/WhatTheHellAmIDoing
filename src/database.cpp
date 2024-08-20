@@ -3,6 +3,10 @@
 
 Database::Database(const char* filename) : db_filename(filename) {}
 
+sqlite3* Database::getDb() const {
+    return db;
+}
+
 bool Database::open() {
     int exit = sqlite3_open(db_filename, &db);
     if (exit) {

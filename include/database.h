@@ -6,6 +6,7 @@
 class Database {
 public:
     Database(const char* filename);
+    sqlite3* getDb() const;
     bool open();
     void close();
     bool execute(const char* sql, const char* success_message);
