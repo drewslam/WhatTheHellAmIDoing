@@ -1,7 +1,16 @@
 #include "../include/database.h"
 #include <iostream>
+#include <stdexcept>
 
-Database::Database(const char* filename) : db_filename(filename) {}
+Database::Database(const char* filename) : db_filename(filename) {
+    if (!open()) {
+        throw std::runtime_error("Failed to open database.");
+    }
+}
+
+Database::~Database() {
+    if (db) { sqlite3_close(db); }
+}
 
 sqlite3* Database::getDb() const {
     return db;
@@ -33,6 +42,54 @@ bool Database::execute(const char* sql, const char* success_message) {
         std::cout << success_message << "\n";
         return true;
     }
+}
+
+bool Database::insert_task(const std::string& description, const std::string& due_date, int completed) {
+    const char* sql = "INSERT INTO TASK (DESCRIPTION, DUE_DATE, COMPLETED) VALUES (?, ?, ?);";
+
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(getDb(), sql, -1, &stmt, 0) == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, description.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, due_date.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 3, completed);
+
+        if (sqlite3_step(stmt) == SQLITE_DONE) {
+            std::cout << "Data inserted successfully.\n";
+            sqlite3_finalize(stmt);
+            return true;
+        } else {
+            std::cerr << "Error inserting data: " << sqlite3_errmsg(getDb()) << "\n";
+        }
+
+        sqlite3_finalize(stmt);
+    } else {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(getDb()) << "\n";
+    }
+    return false;
+}
+
+bool Database::delete_task(int id) {
+    const char* sql = "DELETE FROM TASK WHERE ID = ?";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(getDb(), sql, -1, &stmt, 0) == SQLITE_OK) {
+        sqlite3_bind_int(stmt, 1, id);
+
+        if (sqlite3_step(stmt) == SQLITE_DONE) {
+            std::cout << "Task deleted successfully.\n";
+            sqlite3_finalize(stmt);
+            return true;
+        } else {
+            std::cerr << "Error deleting task: " << sqlite3_errmsg(getDb()) << "\n";
+        }
+
+        sqlite3_finalize(stmt);
+    } else {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(getDb()) << "\n";
+    }
+
+    return false;
 }
 
 bool Database::query(const char* sql) {
