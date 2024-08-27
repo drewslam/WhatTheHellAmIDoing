@@ -92,6 +92,17 @@ bool Database::delete_task(int id) {
     return false;
 }
 
+bool Database::edit_task(int id, char option, const std::string& new_value) {
+    switch (option) {
+        case 'd': return update_description(id, new_value);
+        case 't': return update_due_date(id, new_value);
+        case 'c': return toggle_completed(id);
+        default:
+            std::cerr << "Invalid option.\n";
+            return false;
+    }
+}
+
 bool Database::query(const char* sql) {
     char* messageError;
     int exit = sqlite3_exec(db, sql, callback, 0, &messageError);
@@ -109,4 +120,75 @@ int Database::callback(void* data, int argc, char** argv, char** azColName) {
     }
     std::cout << std::endl;
     return 0;
+}
+
+bool Database::update_description(int id, const std::string& new_description) {
+    const char* sql = "UPDATE TASK SET DESCRIPTION = ? WHERE ID = ?;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(getDb(), sql, -1, &stmt, 0) == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, new_description.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 2, id);
+
+        if (sqlite3_step(stmt) == SQLITE_DONE) {
+            std::cout << "Task updated successfully.\n";
+            sqlite3_finalize(stmt);
+            return true;
+        } else {
+            std::cerr << "Error updating task: " <<sqlite3_errmsg(getDb()) << "\n";
+        }
+
+        sqlite3_finalize(stmt);
+    } else {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(getDb()) << "\n";
+    }
+
+    return false;
+}
+
+bool Database::update_due_date(int id, const std::string& new_due_date) {
+    const char* sql = "UPDATE TASK SET DUE_DATE = ? WHERE ID = ?;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(getDb(), sql, -1, &stmt, 0) == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, new_due_date.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 2, id);
+
+        if (sqlite3_step(stmt) == SQLITE_DONE) {
+            std::cout << "Task updated successfully.\n";
+            sqlite3_finalize(stmt);
+            return true;
+        } else {
+            std::cerr << "Error updating task: " <<sqlite3_errmsg(getDb()) << "\n";
+        }
+
+        sqlite3_finalize(stmt);
+    } else {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(getDb()) << "\n";
+    }
+
+    return false;
+}
+
+bool Database::toggle_completed(int id) {
+    const char* sql = "UPDATE TASK SET COMPLETED = 1 - COMPLETED WHERE ID = ?;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(getDb(), sql, -1, &stmt, 0) == SQLITE_OK) {
+        sqlite3_bind_int(stmt, 1, id);
+
+        if (sqlite3_step(stmt) == SQLITE_DONE) {
+            std::cout << "Task updated successfully.\n";
+            sqlite3_finalize(stmt);
+            return true;
+        } else {
+            std::cerr << "Error updating task: " <<sqlite3_errmsg(getDb()) << "\n";
+        }
+
+        sqlite3_finalize(stmt);
+    } else {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(getDb()) << "\n";
+    }
+
+    return false;
 }

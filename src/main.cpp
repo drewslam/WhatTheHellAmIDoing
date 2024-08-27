@@ -1,26 +1,16 @@
 #include <iostream>
-#include <iomanip>
 #include "../include/database.h"
 #include "../include/date_validation.h"
 
 void display_menu() {
-    std::cout << std::setw(14) << std::setfill(' ') << "";
-    std::cout << std::setw(26) << std::setfill('-') << "" << "Menu";
-    std::cout << std::setw(26) << std::setfill('-') << "" << "\n";
-    std::cout << std::setw(24) << std::setfill(' ') << "" << "***";
-    std::cout << " D - Display the list \n";
-    std::cout << std::setw(24) << std::setfill(' ') << "" << "***";
-    std::cout << " A - Add a task \n";
-    std::cout << std::setw(24) << std::setfill(' ') << "" << "***";
-    std::cout << " E - Edit a task \n";
-    std::cout << std::setw(24) << std::setfill(' ') << "" << "***";
-    std::cout << " Z - Delete a task\n";
-    std::cout << std::setw(24) << std::setfill(' ') << "" << "***";
-    std::cout << " M - Mark a task completed\n";
-    std::cout << std::setw(24) << std::setfill(' ') << "" << "***";
-    std::cout << " X - Exit the application\n";
-    std::cout << std::setw(24) << std::setfill(' ') << "" << "***";
-    std::cout << " Input your option: ";
+    std::cout << std::string(14, ' ') << std::string(26, '-') << " Menu " << std::string(26, '-') << "\n";
+    std::cout << std::string(24, ' ') << "*** D - Display the list\n";
+    std::cout << std::string(24, ' ') << "*** A - Add a task\n";
+    std::cout << std::string(24, ' ') << "*** E - Edit a task\n";
+    std::cout << std::string(24, ' ') << "*** Z - Delete a task\n";
+    std::cout << std::string(24, ' ') << "*** X - Exit the application\n";
+    std::cout << std::string(24, ' ') << "------------------------------------------\n";
+    std::cout << std::string(24, ' ') << "Please input your option: ";
 }
 
 void initialize_table(Database& db) {
@@ -75,24 +65,50 @@ int main() {
     while (input != 'x' && input != 'X') {
         if (input == 'a' || input == 'A') {
             handle_input(db);
-        }
-        if (input == 'd' || input == 'D') {
+        } else if (input == 'd' || input == 'D') {
             const char* select_query = "SELECT * FROM TASK;";
             db.query(select_query);
-        }
-        if (input == 'z' || input == 'Z') {
-            int userInput = -1;
+        } else if (input == 'z' || input == 'Z') {
+            int taskID = -1;
             std::cout << "Input a task ID to delete: ";
-            std::cin >> userInput;
-            db.delete_task(userInput);
+            std::cin >> taskID;
+            db.delete_task(taskID);
+        } else if (input == 'e' || input == 'E') {
+            char userOption;
+            int taskID = -1;
+            std::string newValue;
+            std::cout << "Input the task ID: ";
+            std::cin >> taskID;
+
+            std::cout << "\nSelect from the following options:\n";
+            std::cout << "'D' - Update Description\n";
+            std::cout << "'T' - Update Due Date\n";
+            std::cout << "'C' - Toggle Complete/Incomplete\n";
+            std::cin >> userOption;
+
+            if (userOption == 'd' || userOption == 'D') {
+                std::cout << "Input your new description:\n";
+                getline(std::cin, newValue);
+                db.edit_task(taskID, 'd', newValue);
+            } else if (userOption == 't' || userOption == 'T') {
+                std::cout << "Input your new due date:\n";
+                std::cin >> newValue;
+                while (!validateDate(newValue)) {
+                    std::cout << "\nDue Date (YYYY-MM-DD): ";
+                    std::cin >> newValue;
+                }
+                db.edit_task(taskID, 't', newValue);
+            } else if (userOption == 'c' || userOption == 'C') {
+                db.edit_task(taskID, 'c', "");
+            }
+        } else {
+            std::cerr << "Invalid option selected.\n";
         }
-        
         display_menu();
         std::cin >> input;
-        if (input == 'x' || input == 'X') {
-            std::cout << "Goodbye!" << std::endl;
-        }
     }
+
+    std::cout << "Goodbye!" << std::endl;
 
     db.close();
 
