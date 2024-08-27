@@ -1,16 +1,20 @@
+/* What the Hell Am I Doing?
+ * Author: Andrew Souza
+ *
+ */
 #include <iostream>
 #include "../include/database.h"
 #include "../include/date_validation.h"
 
 void display_menu() {
     std::cout << std::string(14, ' ') << std::string(26, '-') << " Menu " << std::string(26, '-') << "\n";
-    std::cout << std::string(24, ' ') << "*** D - Display the list\n";
-    std::cout << std::string(24, ' ') << "*** A - Add a task\n";
-    std::cout << std::string(24, ' ') << "*** E - Edit a task\n";
-    std::cout << std::string(24, ' ') << "*** Z - Delete a task\n";
-    std::cout << std::string(24, ' ') << "*** X - Exit the application\n";
-    std::cout << std::string(24, ' ') << "------------------------------------------\n";
-    std::cout << std::string(24, ' ') << "Please input your option: ";
+    std::cout << std::string(28, ' ') << "*** D - Display the list\n";
+    std::cout << std::string(28, ' ') << "*** A - Add a task\n";
+    std::cout << std::string(28, ' ') << "*** E - Edit a task\n";
+    std::cout << std::string(28, ' ') << "*** Z - Delete a task\n";
+    std::cout << std::string(28, ' ') << "*** X - Exit the application\n";
+    std::cout << std::string(21, ' ') << "------------------------------------------\n";
+    std::cout << std::string(32, ' ') << "Please input your option: ";
 }
 
 void initialize_table(Database& db) {
@@ -108,7 +112,7 @@ int main() {
         std::cin >> input;
     }
 
-    std::cout << "Goodbye!" << std::endl;
+    std::cout << std::string(40, ' ') << "Goodbye!" << std::endl;
 
     db.close();
 

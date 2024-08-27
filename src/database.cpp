@@ -115,6 +115,7 @@ bool Database::query(const char* sql) {
 }
 
 int Database::callback(void* data, int argc, char** argv, char** azColName) {
+    (void)data;
     for (int i = 0; i < argc; i++) {
         std::cout << azColName[i] << ": " << (argv[i] ? argv[i] : "NULL") << "\n";
     }
