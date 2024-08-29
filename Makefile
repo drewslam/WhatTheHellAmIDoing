@@ -1,6 +1,6 @@
 # Compiler and Linker
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -pedantic 
+CXXFLAGS := -std=c++17 -Wall -Wextra -pedantic -g
 
 # Include directories
 INCLUDES := -Iinclude

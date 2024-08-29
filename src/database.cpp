@@ -1,8 +1,27 @@
 #include "../include/database.h"
+#include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
-Database::Database(const char* filename) : db_filename(filename) {
+Database::Database(const char* filename) { 
+    const char* home_dir = std::getenv("HOME");
+    if (!home_dir) {
+        throw std::runtime_error("Failed to get the HOME environment variable.");
+    }
+
+    // Construct the path to the database file
+    std::string db_path = std::string(home_dir) + "/.wthaid/";
+
+    // Ensure the directory exists
+    std::filesystem::create_directory(db_path);
+
+    db_path += filename;
+
+    std::cout << "Database path: " << db_path << std::endl;
+
+    db_filename = db_path;
+
     if (!open()) {
         throw std::runtime_error("Failed to open database.");
     }
@@ -17,7 +36,7 @@ sqlite3* Database::getDb() const {
 }
 
 bool Database::open() {
-    int exit = sqlite3_open(db_filename, &db);
+    int exit = sqlite3_open(db_filename.c_str(), &db);
     if (exit) {
         std::cerr << "Error opening DB: " << sqlite3_errmsg(db) << "\n";
         return false;
@@ -32,8 +51,9 @@ void Database::close() {
 }
 
 bool Database::execute(const char* sql, const char* success_message) {
-    char* messageError;
+    char* messageError = nullptr;
     int exit = sqlite3_exec(db, sql, nullptr, 0, &messageError);
+
     if (exit != SQLITE_OK) {
         std::cerr << "Error Execute: " << messageError << "\n";
         sqlite3_free(messageError);

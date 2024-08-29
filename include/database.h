@@ -19,7 +19,7 @@ public:
 
 
 private:
-    const char* db_filename;
+    std::string db_filename;
     sqlite3* db = nullptr;
 
     static int callback(void* data, int argc, char** argv, char** azColName);
